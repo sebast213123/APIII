@@ -1,27 +1,24 @@
 ---
+export const prerender = false;
 import Layout from "@layouts/Layout.astro";
-const { id } = Astro.params;
-const response = await fetch(
-  "https://api.themoviedb.org/3/movie/" +
-    id +
-    "?api_key=4f9ac67415b83f1b906ece12e7e791a5&language=en-US"
-);
 
+const { id } = Astro.params;
+
+const response = await fetch(
+  `https://api.themoviedb.org/3/movie/${id}?api_key=4f9ac67415b83f1b906ece12e7e791a5&language=en-US`
+);
 const data = await response.json();
 const poster_url = "https://image.tmdb.org/t/p/w500/";
 
-//Trailer
-
 const fetchVideo = await fetch(
-  "https://api.themoviedb.org/3/movie/" +
-    id +
-    "/videos?api_key=4f9ac67415b83f1b906ece12e7e791a5&language=en-US"
+  `https://api.themoviedb.org/3/movie/${id}/videos?api_key=4f9ac67415b83f1b906ece12e7e791a5&language=en-US`
 );
 const trailer = await fetchVideo.json();
 const res = trailer.results.filter((p) => p.type === "Trailer");
-const video = res[0];
+const video = res.length > 0 ? res[0] : null;
 const youtube = "https://www.youtube.com/embed/";
 ---
+
 
 <Layout>
   <div class="row mt-5">
@@ -46,10 +43,16 @@ const youtube = "https://www.youtube.com/embed/";
   </div>
 
   <h1>Trailer</h1>
+{video ? (
   <iframe
     src={youtube + video.key}
     width="1280"
     height="720"
     frameborder="0"
-    allowfullscreen></iframe>
-</Layout>
+    allowfullscreen
+  ></iframe>
+) : (
+  <p>Trailer no disponible😔</p>
+)}
+
+</Layout>s
